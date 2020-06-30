@@ -11,6 +11,7 @@ var upload = multer();
 
 app.set('view engine', 'ejs');
 app.use(express.static('./src/public'));
+app.use(express.json());
 app.use(bodyParser.json()); // support json encoded bodies
 app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
 app.use(upload.array());

@@ -14,6 +14,8 @@ module.exports =  app => {
         }
 
         var args = req.body;
+        console.log(args)
+        return res.send({args});
         await soap.createClient(url, async (err, client) => {
             try {
                 if (client[action]) {
