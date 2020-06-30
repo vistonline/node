@@ -13,16 +13,17 @@ module.exports =  app => {
             });
         }
 
-        var args = req.body;
-        console.log(args)
+        const args = JSON.parse(JSON.stringify(req.body));
+
         await soap.createClient(url, async (err, client) => {
+
+            if(err) return res.status(400).send(err.message);
+            
             try {
                 if (client[action]) {
                     await client[action](args, async (err, result) => {
 
-                        if(err) {
-                            return res.status(400).send(error.message);
-                        }
+                        if(err) return res.status(400).send(err.message);
     
                         return res.json( result );
                     });
