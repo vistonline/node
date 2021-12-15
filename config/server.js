@@ -12,6 +12,7 @@ var upload = multer();
 app.use(cors())
 app.use(express.json());
 app.use(bodyParser.json());
+app.use(bodyParser.raw());
 app.use(bodyParser.urlencoded({extended:false}));
 app.use(upload.array());
 // app.set('view engine', 'ejs');
