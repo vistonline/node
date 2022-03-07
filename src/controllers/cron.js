@@ -53,7 +53,7 @@ module.exports = app => {
                 var data_foto_year = moment(data.data,'YYYY-MM-DD').format('YYYY');
     
                 let key_path_file = `rot_${data.roterizador}/${data.seguradora}/${data_foto_year}/${data_foto_month}/${data_foto_day}/${data.solicitacao_id}/${data.file_name}`;
-                let path_file = `../../PHOTOS/${key_path_file}`;
+                let path_file = `../PHOTOS/${key_path_file}`;
 
                 let tentativas = (data.tentativas+1)
                 let prox_tentativa = moment(moment()).add((tentativas * tentativas), 'minutes').toDate()
