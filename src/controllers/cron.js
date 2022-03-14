@@ -40,7 +40,7 @@ module.exports = app => {
         .select()
         .limit(300)
         .where(function() {
-            this.where('status', 'error').andWhere('tentativas', '<', 100).andWhere('prox_tentativa', '<', moment().toDate() )
+            this.where('status', 'error').andWhere('tentativas', '<', 20).andWhere('prox_tentativa', '<', moment().toDate() )
         })
         .orWhere({status: 'pendente'})
         .orderBy([{ column: 'tentativas', order: 'desc' }, { column: 'data', order: 'desc' }])
@@ -53,24 +53,31 @@ module.exports = app => {
                 var data_foto_year = moment(data.data,'YYYY-MM-DD').format('YYYY');
     
                 let key_path_file = `rot_${data.roterizador}/${data.seguradora}/${data_foto_year}/${data_foto_month}/${data_foto_day}/${data.solicitacao_id}/${data.file_name}`;
-                let path_file = `../PHOTOS/${key_path_file}`;
+                let path_file_local = `../PHOTOS/${key_path_file}`;
+                let path_file_storage = `../sistema/storage/PHOTOS/${key_path_file}`;
 
                 let tentativas = (data.tentativas+1)
                 let prox_tentativa = moment(moment()).add((tentativas * tentativas), 'minutes').toDate()
                 
                 //Verificando arquivo e registrando tentativas caso nao exista
-                if (!fs.existsSync(path_file)) {
-                    console.log('File does not exists', path_file)
+                if (!fs.existsSync(path_file_local)) {
+                    if (!fs.existsSync(path_file_storage)) {
+                        console.log('File does not exists', path_file_storage)
 
-                    app.db('backup_fotos')
-                        .where({ backup_fotos_id : data.backup_fotos_id })
-                        .update({ 
-                            status: 'error', status_body: "File does not exists", 
-                            tentativas, prox_tentativa 
-                        }) 
-                        .catch( e => console.log(e.message) )
-                    
-                    return false
+                        app.db('backup_fotos')
+                            .where({ backup_fotos_id : data.backup_fotos_id })
+                            .update({ 
+                                status: 'error', status_body: "File does not exists", 
+                                tentativas, prox_tentativa 
+                            }) 
+                            .catch( e => console.log(e.message) )
+                        
+                        return false
+                    } else {
+                        path_file = path_file_storage;
+                    }
+                } else {
+                    path_file = path_file_local;
                 }
     
                 if(data.gateway=='wasabi') {
@@ -95,7 +102,7 @@ module.exports = app => {
                                 app.db('backup_fotos')
                                 .where({ backup_fotos_id : data.backup_fotos_id })
                                 .update({ 
-                                    status: 'error', status_body: error.message, 
+                                    status: 'error', status_body: err.message, 
                                     tentativas, prox_tentativa 
                                 }) 
                                 .catch( e => console.log(e.message) )
@@ -151,6 +158,15 @@ module.exports = app => {
                         })
                         .catch( error => {
                             console.error(error)
+
+                            app.db('backup_fotos')
+                            .where({ backup_fotos_id : data.backup_fotos_id })
+                            .update({ 
+                                status: 'error', status_body: error.message, 
+                                tentativas, prox_tentativa 
+                            }) 
+                            .catch( e => console.log(e.message) )
+                            
                         });
 
                     //   }
@@ -162,9 +178,4 @@ module.exports = app => {
     }, {
         timezone: "America/Sao_Paulo"
     });
-
-
-   
-
-
 }
