@@ -10,32 +10,10 @@ require('dotenv').config();
 
 module.exports = app => {
 
-    // console.log(process.env.GOOGLE_FILE_JSON)
-    // console.log(moment(moment()).add(2, 'minutes'))
-
     cron.schedule('* * * * *', async () => {
-        // process.env.TZ = "America/Sao_Paulo";
-        //moment('2022-02-23 13:10:10','YYYY-MM-DD').add(11, 'minutes');
-        // console.log(
-        //     moment(moment()).add(2, 'minutes'),
-        //     // moment().toString(),
-        //     // new Date().toString()
-        // );  
 
         console.log('running a task every minute');
 
-        // var result = await app.db('backup_fotos')
-        //     .select()
-        //     .limit(4)
-        //     .where(function() {
-        //         this.where('status', 'error').andWhere('tentativas', '<', 11)
-        //         })
-        //     .orWhere({status: 'pendente'})
-        //     .orderBy([{ column: 'tentativas', order: 'desc' }, { column: 'data', order: 'desc' }]);
-
-        // result.map( data => {
-        //     console.log(result)
-        // } )
         app.db('backup_fotos')
         .select()
         .limit(300)
@@ -110,10 +88,10 @@ module.exports = app => {
                                 return false;
                             }
                 
-                            console.log(success)
+                            console.log("WASABI OK")
                             app.db('backup_fotos')
                             .where({ backup_fotos_id : data.backup_fotos_id })
-                            .update({ status: 'completo', status_body: JSON.stringify(success) }) 
+                            .update({ status: 'completo', status_body: "OK" }) 
                             .catch( e => console.log(e.message) )
                         });
                     } catch (error) {
@@ -150,10 +128,10 @@ module.exports = app => {
                             public: true,
                         })
                         .then(success => {
-                            console.log(success)
+                            console.log("GOOGLE OK")
                             app.db('backup_fotos')
                             .where({ backup_fotos_id : data.backup_fotos_id })
-                            .update({ status: 'completo', status_body: JSON.stringify(success) }) 
+                            .update({ status: 'completo', status_body: "OK" }) 
                             .catch( e => console.log(e.message) )
                         })
                         .catch( error => {
@@ -174,7 +152,9 @@ module.exports = app => {
                     //   uploadFile().catch(console.error);
                 }
             });
+            console.log("task finished\n");
         });
+
     }, {
         timezone: "America/Sao_Paulo"
     });
