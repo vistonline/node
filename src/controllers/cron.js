@@ -38,7 +38,9 @@ module.exports = app => {
                 let tentativas = (data.tentativas+1)
                 let prox_tentativa = moment(moment()).add((tentativas * tentativas), 'minutes').toDate()
                 
-                let anotheFiles = `../PHOTOS/${data.url}/${data.file_name}`;
+                let keyAnotheFiles = `${data.url}/${data.file_name}`;
+                let anotheFiles = `../PHOTOS/${keyAnotheFiles}`;
+
 
                 //Verificando arquivo e registrando tentativas caso nao exista
                 if (!fs.existsSync(path_file_local)) {
@@ -57,6 +59,7 @@ module.exports = app => {
                             return false
                         } else {
                             path_file = anotheFiles;
+                            key_path_file = keyAnotheFiles;
                         }
                     } else {
                         path_file = path_file_storage;
