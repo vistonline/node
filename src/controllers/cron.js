@@ -16,7 +16,7 @@ module.exports = app => {
 
         app.db('backup_fotos')
         .select()
-        .limit(300)
+        .limit(1200)
         .where(function() {
             this.where('status', 'error').andWhere('tentativas', '<', 20).andWhere('prox_tentativa', '<', moment().toDate() )
         })
@@ -88,7 +88,7 @@ module.exports = app => {
                                 return false;
                             }
                 
-                            console.log("WASABI OK")
+                            console.log("WASABI OK "+ new Date().getTime())
                             app.db('backup_fotos')
                             .where({ backup_fotos_id : data.backup_fotos_id })
                             .update({ status: 'completo', status_body: "OK" }) 
@@ -128,7 +128,7 @@ module.exports = app => {
                             public: true,
                         })
                         .then(success => {
-                            console.log("GOOGLE OK")
+                            console.log("GOOGLE OK "+ new Date().getTime())
                             app.db('backup_fotos')
                             .where({ backup_fotos_id : data.backup_fotos_id })
                             .update({ status: 'completo', status_body: "OK" }) 
