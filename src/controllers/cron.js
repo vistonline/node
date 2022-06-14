@@ -25,10 +25,11 @@ module.exports = app => {
         .then( result => {
     
             result.map( data => {
-    
+
                 var data_foto_day = moment(data.data,'YYYY-MM-DD').format('DD');
                 var data_foto_month = moment(data.data,'YYYY-MM-DD').format('MM');
                 var data_foto_year = moment(data.data,'YYYY-MM-DD').format('YYYY');
+
     
                 let key_path_file = `rot_${data.roterizador}/${data.seguradora}/${data_foto_year}/${data_foto_month}/${data_foto_day}/${data.solicitacao_id}/${data.file_name}`;
                 let path_file_local = `../PHOTOS/${key_path_file}`;
@@ -37,20 +38,29 @@ module.exports = app => {
                 let tentativas = (data.tentativas+1)
                 let prox_tentativa = moment(moment()).add((tentativas * tentativas), 'minutes').toDate()
                 
+                let keyAnotheFiles = `${data.url}/${data.file_name}`;
+                let anotheFiles = `../PHOTOS/${keyAnotheFiles}`;
+
+
                 //Verificando arquivo e registrando tentativas caso nao exista
                 if (!fs.existsSync(path_file_local)) {
                     if (!fs.existsSync(path_file_storage)) {
-                        console.log('File does not exists', path_file_storage)
+                        if (!fs.existsSync(anotheFiles)) {
+                            console.log('File does not exists', path_file_storage)
 
-                        app.db('backup_fotos')
-                            .where({ backup_fotos_id : data.backup_fotos_id })
-                            .update({ 
-                                status: 'error', status_body: "File does not exists", 
-                                tentativas, prox_tentativa 
-                            }) 
-                            .catch( e => console.log(e.message) )
-                        
-                        return false
+                            app.db('backup_fotos')
+                                .where({ backup_fotos_id : data.backup_fotos_id })
+                                .update({ 
+                                    status: 'error', status_body: "File does not exists", 
+                                    tentativas, prox_tentativa 
+                                }) 
+                                .catch( e => console.log(e.message) )
+                            
+                            return false
+                        } else {
+                            path_file = anotheFiles;
+                            key_path_file = keyAnotheFiles;
+                        }
                     } else {
                         path_file = path_file_storage;
                     }
