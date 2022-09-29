@@ -18,8 +18,15 @@ module.exports = app => {
         .select()
         .limit(1200)
         .where(function() {
-            this.where('status', 'error').andWhere('tentativas', '<', 20).andWhere('prox_tentativa', '<', moment().toDate() )
+            this.where('status', 'error')
+            .andWhere('tentativas', '<', 20)
+            .andWhere('prox_tentativa', '<', moment().toDate() )
         })
+        // .orWhere(function() {
+        //     this.where('status', 'pendente')
+        //     .andWhere('gateway', '=', 'google')
+        //     .andWhere('create_time', '<', '2022-09-27 00:00:00' )
+        // })
         .orWhere({status: 'pendente'})
         .orderBy([{ column: 'tentativas', order: 'desc' }, { column: 'data', order: 'desc' }])
         .then( result => {
@@ -30,17 +37,16 @@ module.exports = app => {
                 var data_foto_month = moment(data.data,'YYYY-MM-DD').format('MM');
                 var data_foto_year = moment(data.data,'YYYY-MM-DD').format('YYYY');
 
-    
-                let key_path_file = `rot_${data.roterizador}/${data.seguradora}/${data_foto_year}/${data_foto_month}/${data_foto_day}/${data.solicitacao_id}/${data.file_name}`;
+                let file_name = data.file_name != '' ? data.file_name : 'unknown.jpg';
+                let key_path_file = `rot_${data.roterizador}/${data.seguradora}/${data_foto_year}/${data_foto_month}/${data_foto_day}/${data.solicitacao_id}/${file_name}`;
                 let path_file_local = `../PHOTOS/${key_path_file}`;
                 let path_file_storage = `../sistema/storage/PHOTOS/${key_path_file}`;
 
                 let tentativas = (data.tentativas+1)
                 let prox_tentativa = moment(moment()).add((tentativas * tentativas), 'minutes').toDate()
                 
-                let keyAnotheFiles = `${data.url}/${data.file_name}`;
+                let keyAnotheFiles = `${data.url}/${file_name}`;
                 let anotheFiles = `../PHOTOS/${keyAnotheFiles}`;
-
 
                 //Verificando arquivo e registrando tentativas caso nao exista
                 if (!fs.existsSync(path_file_local)) {
@@ -130,8 +136,6 @@ module.exports = app => {
 
                     // The new ID for your GCS file
                     const destFileName = key_path_file;
-
-
                     // async function uploadFile() {
                         storage.bucket(bucketName).upload(path_file, {
                             destination: key_path_file,
